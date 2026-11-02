@@ -1,0 +1,12 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Request for Medical Records
+Date: 15 October 2026
+From: Example Insurance Services (FAKE)
+
+Re: Mia Wilson (DOB: 22/04/1993 — FAKE)
+
+With the patient’s signed consent attached, please provide a copy of the
+consultation summary for 20 August 2026 for an insurance assessment.
+Please confirm receipt and advise any administration fee payable.
+
+Records Team (FAKE)

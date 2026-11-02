@@ -1,0 +1,8 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report
+Laboratory: Example Pathology (FAKE)
+Patient: Noah Williams (DOB: 30/01/1972 — FAKE)
+Collected: 10 October 2026 — Reported: 11 October 2026
+Test: Fasting glucose — 5.4 mmol/L (reference 3.9–6.0) — NORMAL
+Test: HbA1c — 41 mmol/mol (reference <48) — NORMAL
+Comment: Results within reference ranges. No action required. Copy to GP for filing and routine review.

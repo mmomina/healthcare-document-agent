@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report — ABNORMAL RESULT
+Laboratory: Example Pathology (FAKE)
+Patient: Emma Brown (DOB: 11/12/1990 — FAKE)
+Collected: 16 October 2026 — Reported: 17 October 2026
+Test: Full blood count — Haemoglobin 92 g/L (reference 115–155) — LOW
+Test: Ferritin — 6 µg/L (reference 15–200) — LOW
+Comment: Iron deficiency anaemia. Clinical correlation and prompt GP follow-up
+required. This result has been phoned to the requesting doctor.

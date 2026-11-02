@@ -1,0 +1,10 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Discharge Summary
+Hospital: Example Hospital (FAKE)
+Patient: Sofia Rossi (DOB: 19/09/1988 — FAKE)
+Admission: 14 October 2026 — Discharge: 16 October 2026
+Procedure: Laparoscopic appendicectomy, uncomplicated.
+Wound care: Keep dressing dry, GP to remove sutures at day 10.
+Medications on discharge: Paracetamol 1g QID PRN, ibuprofen 400mg TDS with food.
+Follow-up: GP review at day 10 for suture removal and wound check. Return to
+ED if fever, increasing pain or wound discharge.

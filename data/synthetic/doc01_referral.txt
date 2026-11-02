@@ -1,0 +1,18 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Referral Letter
+Date: 12 October 2026
+From: Dr Helen Park, GP, Central Coast Medical Centre (FAKE)
+To: Dr Andrew Kim, Cardiologist
+
+Dear Dr Kim,
+Re: Ava Thompson (DOB: 14/03/1981 — FAKE), 12 Example Street, Blue Haven NSW
+
+I am referring Mrs Thompson for assessment of intermittent palpitations and
+two episodes of light-headedness in the past month. ECG in clinic showed an
+irregular rhythm. No chest pain. Current medication: perindopril 5mg daily.
+
+I would appreciate review within the next 2–3 weeks. Recent ECG and blood
+results are attached.
+
+Kind regards,
+Dr Helen Park

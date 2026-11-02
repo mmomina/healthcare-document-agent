@@ -1,0 +1,12 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Admin Letter — Medicare Claim Enquiry
+Date: 13 October 2026
+To: Practice Manager, Central Coast Medical Centre (FAKE)
+
+Re: Lucas Davis (DOB: 08/08/1985 — FAKE), Medicare No. 0000 00000 0 (FAKE)
+
+A claim for the consultation on 2 October 2026 was rejected due to an
+incorrect item number. Please resubmit with the corrected item number and
+attach the consultation note. No clinical information is requested in this letter.
+
+Billing Department (FAKE)

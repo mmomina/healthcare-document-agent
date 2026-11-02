@@ -1,0 +1,6 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Appointment Request / Message to Clinic 
+Name: Grace Lee (FAKE)
+Message: “Hello, I received my blood test results letter yesterday and I don’t
+understand it. Can I please book an appointment soon to discuss it with Dr Park?
+Also, I need to update my address — I have moved to 99 Sample Road.”

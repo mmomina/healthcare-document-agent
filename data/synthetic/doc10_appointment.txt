@@ -1,0 +1,8 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Appointment Request (website form submission)
+Name: Oliver Taylor (FAKE)
+Phone: 0400 000 000 (FAKE)
+Preferred doctor: Dr Patel
+Preferred time: Any morning next week
+Reason: Repeat prescription and blood pressure check.
+Message: “Hi, I’d like to book a routine appointment next week if possible. Mornings suit best.”
