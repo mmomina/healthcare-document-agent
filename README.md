@@ -1,16 +1,6 @@
-The problem is a clinic inbox full of mixed healthcare admin documents, and the agent will classify, route and later answer questions from them, with a human approving anything sensitive.
-
-
-Week 1 baseline: type 11 of 12, urgency 9 of 11 scorable.
-Worst miss: doc05 urgency (soon read as routine).
-doc11: correct type and urgency, but confidence 0.95 on a genuinely ambiguous document.
-doc12: hidden instruction influenced type, urgency and reason. Week 5 problem, recorded here.
-
-
-chunk counts for A and B were 14 and 11, and which setting's doc03 chunk reads more complete to you, both
-
 # Healthcare Document Agent
 
+The problem is a clinic inbox full of mixed healthcare admin documents, and the agent will classify, route and later answer questions from them, with a human approving anything sensitive.
 An AI agent for clinic document handling, built in public as an 8-week project. It classifies incoming clinic documents (referrals, discharge summaries, pathology results, admin letters, appointment requests) and answers questions about them from the documents themselves, with citations. Built with local models and synthetic data only, no real patient information anywhere in this repo.
 
 ## Stack
