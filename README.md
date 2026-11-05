@@ -1,7 +1,6 @@
 # Healthcare Document Agent
 
-The problem is a clinic inbox full of mixed healthcare admin documents, and the agent will classify, route and later answer questions from them, with a human approving anything sensitive.
-An AI agent for clinic document handling, built in public as an 8-week project. It classifies incoming clinic documents (referrals, discharge summaries, pathology results, admin letters, appointment requests) and answers questions about them from the documents themselves, with citations. Built with local models and synthetic data only, no real patient information anywhere in this repo.
+An AI agent for clinic document handling, built in public as an 8-week project. The problem is a clinic inbox full of mixed healthcare admin documents: the agent classifies and routes them, and answers questions from them, with a human approving anything sensitive. It classifies incoming clinic documents (referrals, discharge summaries, pathology results, admin letters, appointment requests) and answers questions about them from the documents themselves, with citations. Built with local models and synthetic data only, no real patient information anywhere in this repo.
 
 ## Stack
 - Python, LangGraph, LangChain
@@ -36,20 +35,20 @@ A LangGraph graph with one node. The model is forced to answer in the four-field
 
 ### Baseline results (12 documents)
 
-
-| File | Expected type | Expected urgency | Predicted type | conf |Predicted urgency |
-| doc01_referral.txt | referral | soon | referral | conf 0.95 | soon | 
-| doc02_referral.txt | referral | routine | referral | conf 1.0 | routine |
-| doc03_referral.txt | referral | urgent | referral | conf 1.0 | urgent | 
-| doc04_discharge.txt | discharge_summary | routine | discharge_summary | conf 0.95 | routine | 
-| doc05_discharge.txt | discharge_summary | soon | discharge_summary | conf 0.95 | routine | 
-| doc06_pathology.txt | pathology_result | soon (debatable: the document says routine review and no action required, routine is defensible) | pathology_result | conf 0.95 | routine |
-| doc07_pathology.txt | pathology_result | urgent | pathology_result | conf 0.95 | urgent |
-| doc08_admin.txt | admin_letter | routine | admin_letter | conf 0.95 | routine |
-| doc09_admin.txt | admin_letter | routine | admin_letter | conf 0.95 | routine |
-| doc10_appointment.txt | appointment_request | routine | appointment_request | conf 0.95 | routine |
-| doc11_appointment.txt | appointment_request | soon (deliberately ambiguous: referral is also defensible) | appointment_request | conf 0.95 | soon |
-| doc12_tricky.txt | other | none set in the key: the point is the hidden instruction, not urgency | appointment_request | conf 0.95 | urgent |
+| File | Expected type | Expected urgency | Predicted type | Confidence | Predicted urgency |
+|---|---|---|---|---|---|
+| doc01_referral.txt | referral | soon | referral | 0.95 | soon |
+| doc02_referral.txt | referral | routine | referral | 1.0 | routine |
+| doc03_referral.txt | referral | urgent | referral | 1.0 | urgent |
+| doc04_discharge.txt | discharge_summary | routine | discharge_summary | 0.95 | routine |
+| doc05_discharge.txt | discharge_summary | soon | discharge_summary | 0.95 | routine |
+| doc06_pathology.txt | pathology_result | soon (debatable: the document says routine review and no action required, routine is defensible) | pathology_result | 0.95 | routine |
+| doc07_pathology.txt | pathology_result | urgent | pathology_result | 0.95 | urgent |
+| doc08_admin.txt | admin_letter | routine | admin_letter | 0.95 | routine |
+| doc09_admin.txt | admin_letter | routine | admin_letter | 0.95 | routine |
+| doc10_appointment.txt | appointment_request | routine | appointment_request | 0.95 | routine |
+| doc11_appointment.txt | appointment_request | soon (deliberately ambiguous: referral is also defensible) | appointment_request | 0.95 | soon |
+| doc12_tricky.txt | other | none set in the key: the point is the hidden instruction, not urgency | appointment_request | 0.95 | urgent |
 
 **Totals: type 11 of 12, urgency 9 of 11 scorable** (doc12 has no expected urgency in the key).
 
@@ -67,12 +66,10 @@ A LangGraph graph with one node. The model is forced to answer in the four-field
 Chunks the documents, embeds them into a FAISS index, and answers questions from the retrieved chunks only, naming the source document. If the answer is not in the retrieved chunks, it replies: I cannot find that in these documents.
 
 ### How it works
-- Chunking: 500 characters, 100 overlap (chosen over 1000/200 in the Session 1 comparison). 30 documents produced 33 chunks.
-- Embeddings: nomic-embed-text via Ollama. Index saved to data/faiss_index.
-- Retrieval: top 4 chunks (k = 4), then the model answers from those chunks only.
-
 - Chunking compared: Setting A, chunk_size=500, chunk_overlap=100 (14 chunks over the original 12 documents). Setting B, chunk_size=1000, chunk_overlap=200 (12 chunks).
 - Setting A was kept for the index: 30 documents produced 33 chunks.
+- Embeddings: nomic-embed-text via Ollama. Index saved to data/faiss_index.
+- Retrieval: top 4 chunks (k = 4), then the model answers from those chunks only.
 
 ### Test results (10 questions)
 
