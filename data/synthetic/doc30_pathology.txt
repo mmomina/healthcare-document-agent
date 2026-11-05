@@ -1,0 +1,10 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report
+Laboratory: Example Pathology (FAKE)
+Patient: Emma Brown (DOB: 11/12/1990 — FAKE)
+Collected: 30 October 2026, Reported: 31 October 2026
+Test: Full blood count — Haemoglobin 121 g/L (reference 115–155), NORMAL
+Test: Ferritin — 28 µg/L (reference 15–200), NORMAL
+Comment: Follow-up testing after iron treatment. Results have improved into the
+normal range compared with the report of 17 October 2026. Continue iron for a
+further 3 months. Copy to GP for routine filing.

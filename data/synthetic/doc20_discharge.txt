@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Discharge Summary
+Hospital: Example Hospital (FAKE)
+Patient: Mary Johnson (DOB: 05/11/1952 — FAKE)
+Admission: 18 October 2026, Discharge: 22 October 2026
+Procedure: Total hip replacement, right side, uncomplicated recovery.
+Medications on discharge: Paracetamol 1g QID, oxycodone 5mg PRN for breakthrough pain.
+Follow-up: Physiotherapy starts next week. GP review in 2 weeks for wound check
+and pain review.

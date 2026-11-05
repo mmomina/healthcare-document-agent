@@ -1,0 +1,8 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Discharge Summary
+Hospital: Example Day Procedure Unit (FAKE)
+Patient: Chris Evans (DOB: 17/07/1989 — FAKE)
+Date of procedure: 27 October 2026, discharged same day.
+Procedure: Gastroscopy, normal findings, biopsies taken.
+Discharge condition: Recovered well, tolerating oral intake.
+Follow-up: Results to GP when available. No routine hospital follow-up required.

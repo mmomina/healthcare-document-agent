@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Appointment Request (website form submission)
+Name: Robert Hill (FAKE)
+Phone: 0400 000 001 (FAKE)
+Preferred doctor: Any
+Preferred time: Within the next 2 weeks
+Reason: Diabetes review and flu vaccination.
+Message: "Hi, I am due for my diabetes review and would like my flu shot at the
+same visit if possible, sometime in the next two weeks."

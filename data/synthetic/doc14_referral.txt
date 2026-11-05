@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Referral Letter
+Date: 21 October 2026
+From: Dr Samir Patel, GP (FAKE)
+To: Example Eye Clinic
+Re: Betty Chen (DOB: 02/02/1949 — FAKE)
+Please accept this referral for cataract assessment of the left eye. Vision has
+gradually reduced over 12 months. No pain, no sudden changes. Routine priority.
+Dr Samir Patel

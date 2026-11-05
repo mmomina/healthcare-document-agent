@@ -1,0 +1,10 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+URGENT Referral
+Date: 20 October 2026
+From: Dr Helen Park, GP (FAKE)
+To: Respiratory Department, Example Hospital
+Re: Henry Adams (DOB: 14/03/1958 — FAKE)
+Urgent referral please. Mr Adams reports a 6-week history of persistent cough,
+two episodes of coughing blood, and 5 kg unintentional weight loss. Chest X-ray
+shows a right upper lobe opacity. Please arrange urgent respiratory review.
+Dr Helen Park

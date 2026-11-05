@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report
+Laboratory: Example Pathology (FAKE)
+Patient: Rachel Green (DOB: 31/01/1991 — FAKE)
+Collected: 25 October 2026, Reported: 26 October 2026
+Test: TSH, 8.4 mIU/L (reference 0.4 to 4.0), HIGH
+Test: Free T4, 11 pmol/L (reference 9 to 19), NORMAL
+Comment: Pattern suggests subclinical hypothyroidism. GP review advised and
+repeat thyroid function in 6 weeks.

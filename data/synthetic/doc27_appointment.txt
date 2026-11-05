@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Appointment Request (phone message)
+Name: Julie Ford (FAKE)
+Phone: 0400 000 002 (FAKE)
+Preferred doctor: Dr Park
+Preferred time: Any time next month
+Reason: Annual health assessment.
+Message: "Hello, I would like to book my yearly health check. No rush, any
+appointment next month suits me."

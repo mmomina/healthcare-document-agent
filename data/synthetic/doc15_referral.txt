@@ -1,0 +1,10 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Referral Letter
+Date: 22 October 2026
+From: Dr Helen Park, GP (FAKE)
+To: Gastroenterology, Example Hospital
+Re: David Singh (DOB: 27/06/1983 — FAKE)
+Referral for persistent reflux symptoms despite 8 weeks of daily PPI, with
+intermittent difficulty swallowing solids. No weight loss. Please review within
+2 to 3 weeks and consider gastroscopy.
+Dr Helen Park

@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report
+Laboratory: Example Pathology (FAKE)
+Patient: Tom Baker (DOB: 23/09/1977 — FAKE)
+Collected: 26 October 2026, Reported: 27 October 2026
+Test: Total cholesterol, 5.9 mmol/L (reference under 5.5), SLIGHTLY HIGH
+Test: Fasting glucose, 5.1 mmol/L (reference 3.9 to 6.0), NORMAL
+Comment: Mild elevation only. Lifestyle advice suggested. No medication change
+required at this stage. Copy to GP for routine filing.

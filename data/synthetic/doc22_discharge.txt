@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Discharge Summary
+Hospital: Example Hospital (FAKE)
+Patient: Sarah Kim (DOB: 12/12/1994 — FAKE)
+Admission: 28 October 2026, Discharge: [BLANK]
+Reason for admission: Observation after allergic reaction, resolved.
+Treatment: Antihistamine and observation overnight.
+Medications on discharge: [BLANK]
+Follow-up: [BLANK]

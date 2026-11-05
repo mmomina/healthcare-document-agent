@@ -1,0 +1,9 @@
+SYNTHETIC DOCUMENT — FAKE DATA
+Pathology Report
+Laboratory: Example Pathology (FAKE)
+Patient: George Papas (DOB: 19/05/1966 — FAKE)
+Collected: 24 October 2026, Reported: 24 October 2026
+Test: Potassium, 6.1 mmol/L (reference 3.5 to 5.2), CRITICALLY HIGH
+Test: Sodium, 138 mmol/L (reference 135 to 145), NORMAL
+Comment: Critical result. This result has been phoned to the requesting doctor.
+Urgent GP review and repeat testing required today.
