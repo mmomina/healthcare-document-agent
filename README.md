@@ -14,6 +14,7 @@ An AI agent for clinic document handling, built in public as an 8-week project. 
 3. Classify documents: `python app/session2_classifier.py`
 4. Build the search index: `python app/build_index.py`
 5. Ask a question: `python app/rag_qa.py "your question"`
+6. Ask with grading and rewrite (Week 3): `python app/agentic_rag.py "your question"`
 
 ## Progress
 - [x] Week 1: document classifier with structured output, 12-document baseline
@@ -92,3 +93,22 @@ Chunks the documents, embeds them into a FAISS index, and answers questions from
 - The one failure was retrieval, not the model: the right file was found, the right chunk was not in the top 4. Raising k is the obvious knob, deliberately not touched until after this baseline.
 - The prompt injection in doc12, which bent the Week 1 classifier, got nothing here: the answer covered only her real request.
 - Same-patient documents at different times (doc07 and doc30) were kept separate.
+
+## Week 3: Agentic RAG
+
+### Session 1: grade retrieval, rewrite, retry
+
+### What it does
+The Q&A graph now checks its own retrieval before answering. Each retrieved chunk is graded relevant or not relevant to the question. Only chunks that pass are used. If none pass, the question is rewritten as a better search query and retrieval runs again, at most 2 rewrites, then the graph stops. New file: `app/agentic_rag.py`. `rag_qa.py` is unchanged and stays as the Week 2 version.
+
+### Test results (4 runs)
+- Priya Nair urgent review (doc03): pass. Only doc03 graded relevant, answered on the first try, no rewrite.
+- Lucas Davis Medicare claim (doc08): pass. Control question. Only doc08 graded relevant, answered on the first try.
+- Sofia Rossi follow-up (doc05): still a miss, in a new shape. The doc05 chunk that was retrieved graded relevant, but it did not contain the follow-up detail (doc05 is split into two chunks), so the model refused honestly instead of answering from weak evidence.
+- "When is Sofia Rossi's next check-up?": all four retrieved chunks graded not relevant, correctly. The rewrite fired ("Sofia Rossi next follow-up date"), doc05 still did not reach the top 4, the second rewrite was identical to the first, and the graph stopped at the 2-rewrite cap as designed.
+
+### Key findings
+- The grader's verdicts were correct on every chunk across the four runs: every relevant grade was the right document, every not relevant grade was genuinely off-topic.
+- Relevant is not the same as contains the answer. Grading cannot recover a chunk that retrieval never fetched; which chunk arrives is still the limit, as in Week 2.
+- At temperature 0, rewriting the same original question produced the same rewrite twice, so the second loop repeated the first instead of trying a new strategy. A rewrite that changes strategy each loop, stricter grader wording (contains the specific fact, not just relevant), and a larger k are recorded candidates, deliberately not changed yet: measure first, then fix.
+
