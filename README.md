@@ -1,6 +1,6 @@
 # Healthcare Document Agent
 
-An AI agent for clinic document handling, built in public as an 8-week project. The problem is a clinic inbox full of mixed healthcare admin documents: the agent classifies and routes them, and answers questions from them, with a human approving anything sensitive. It classifies incoming clinic documents (referrals, discharge summaries, pathology results, admin letters, appointment requests) and answers questions about them from the documents themselves, with citations. Built with local models and synthetic data only, no real patient information anywhere in this repo.
+An AI agent for clinic document handling, built as an 8-week project. The problem is a clinic inbox full of mixed healthcare admin documents: the agent classifies and routes them, and answers questions from them, with a human approving anything sensitive. It classifies incoming clinic documents (referrals, discharge summaries, pathology results, admin letters, appointment requests) and answers questions about them from the documents themselves, with citations. Built with local models and synthetic data only, no real patient information anywhere in this repo.
 
 ## Stack
 - Python, LangGraph, LangChain
@@ -99,7 +99,12 @@ Chunks the documents, embeds them into a FAISS index, and answers questions from
 ### Session 1: grade retrieval, rewrite, retry
 
 ### What it does
-The Q&A graph now checks its own retrieval before answering. Each retrieved chunk is graded relevant or not relevant to the question. Only chunks that pass are used. If none pass, the question is rewritten as a better search query and retrieval runs again, at most 2 rewrites, then the graph stops. New file: `app/agentic_rag.py`. `rag_qa.py` is unchanged and stays as the Week 2 version.
+The Q&A graph now checks its own retrieval before answering. Each retrieved chunk is graded relevant or not relevant to the question. Only chunks that pass are used. If none pass, the question is rewritten as a better search query and retrieval runs again, at most 2 rewrites, then the graph stops. New file: `app/agentic_rag.py`.
+
+1. Why does Priya Nair need urgent review?
+2. Why was Lucas Davis's Medicare claim rejected?
+3. What follow-up does Sofia Rossi need, and when?
+4. When is Sofia Rossi's next check-up?
 
 ### Test results (4 runs)
 - Priya Nair urgent review (doc03): pass. Only doc03 graded relevant, answered on the first try, no rewrite.
