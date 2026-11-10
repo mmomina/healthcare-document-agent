@@ -12,6 +12,7 @@ embeddings = OllamaEmbeddings(model="nomic-embed-text")
 store = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
 retriever = store.as_retriever(search_kwargs={"k": 4})
 llm = ChatOllama(model="qwen3:8b", temperature=0)
+REFUSAL = "I cannot find that in these documents."
 
 class State(TypedDict):
     question: str            # current search wording, the rewrite node may change this
@@ -81,35 +82,41 @@ def answer(state: State) -> dict:
     return {"answer": llm.invoke(prompt).content}
 
 
-def give_up(state: State) -> dict:
-    return {"answer": "No relevant chunk found after 2 rewrites. (Proper refusal path comes in Session 2.)"}
-
+def refuse(state: State) -> dict:
+    return {"answer": REFUSAL, "chunks": []}
 
 def decide_after_grade(state: State) -> str:
     if len(state["chunks"]) > 0:
         return "answer"
     if state["loops"] < 2:
         return "rewrite"
-    return "give_up"
+    return "refuse"
 
+def decide_after_answer(state: State) -> str:
+    if REFUSAL in state["answer"]:
+        return "refuse"
+    return "end"
 
 graph = StateGraph(State)
 graph.add_node("retrieve", retrieve)
 graph.add_node("grade", grade)
 graph.add_node("rewrite", rewrite)
 graph.add_node("answer", answer)
-graph.add_node("give_up", give_up)
+graph.add_node("refuse", refuse)
 
 graph.add_edge(START, "retrieve")
 graph.add_edge("retrieve", "grade")
 graph.add_conditional_edges("grade", decide_after_grade, {
     "answer": "answer",
     "rewrite": "rewrite",
-    "give_up": "give_up",
+    "refuse": "refuse",
 })
 graph.add_edge("rewrite", "retrieve")
-graph.add_edge("answer", END)
-graph.add_edge("give_up", END)
+graph.add_conditional_edges("answer", decide_after_answer, {
+    "refuse": "refuse",
+    "end": END,
+})
+graph.add_edge("refuse", END)
 app_graph = graph.compile()
 
 
@@ -123,6 +130,7 @@ if __name__ == "__main__":
         "loops": 0,
     })
     print("\nANSWER:\n", result["answer"])
-    print("\nSources used:")
-    for c in result["chunks"]:
-        print(" -", c.metadata["source"])
+    if result["chunks"]:
+        print("\nSources used:")
+        for c in result["chunks"]:
+            print(" -", c.metadata["source"])
