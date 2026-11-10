@@ -138,7 +138,18 @@ Refusal is now a system guarantee instead of a side effect. A dedicated refuse n
 
 **Graph (Session 2 version, with the refuse node):**
 
-![Week 3 Session 2 graph: retrieve, grade, rewrite, answer, refuse](graph.png)
+```mermaid
+graph TD;
+    __start__ --> retrieve;
+    retrieve --> grade;
+    grade -.-> answer;
+    grade -.-> rewrite;
+    grade -.-> refuse;
+    rewrite --> retrieve;
+    answer -.-> __end__;
+    answer -.-> refuse;
+    refuse --> __end__;
+```
 
 ### Test results (6 runs)
 
