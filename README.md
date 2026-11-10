@@ -106,6 +106,20 @@ The Q&A graph now checks its own retrieval before answering. Each retrieved chun
 3. What follow-up does Sofia Rossi need, and when?
 4. When is Sofia Rossi's next check-up?
 
+**Graph (Session 1 version, with the give_up placeholder that Session 2 replaced):**
+
+```mermaid
+graph TD;
+    __start__ --> retrieve;
+    retrieve --> grade;
+    grade -.-> answer;
+    grade -.-> rewrite;
+    grade -.-> give_up;
+    rewrite --> retrieve;
+    answer --> __end__;
+    give_up --> __end__;
+```
+
 ### Test results (4 runs)
 - Priya Nair urgent review (doc03): pass. Only doc03 graded relevant, answered on the first try, no rewrite.
 - Lucas Davis Medicare claim (doc08): pass. Control question. Only doc08 graded relevant, answered on the first try.
@@ -121,6 +135,10 @@ The Q&A graph now checks its own retrieval before answering. Each retrieved chun
 
 ### What it does
 Refusal is now a system guarantee instead of a side effect. A dedicated refuse node returns exactly one fixed sentence, "I cannot find that in these documents.", and clears the chunk list, so a refusal never presents a source. There are two routes into it: no chunk graded relevant after the 2 rewrites, or a chunk graded relevant but the answer is not inside it, which is caught by a check after the answer node and routed to refuse.
+
+**Graph (Session 2 version, with the refuse node):**
+
+![Week 3 Session 2 graph: retrieve, grade, rewrite, answer, refuse](graph.png)
 
 ### Test results (6 runs)
 
