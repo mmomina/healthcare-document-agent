@@ -7,6 +7,10 @@ from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langgraph.graph import StateGraph, START, END
 from langsmith import traceable
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 store = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
@@ -20,6 +24,8 @@ class State(TypedDict):
     chunks: List[Document]
     answer: str
     loops: int
+    feedback: str      # why the checker rejected the draft, empty on the first pass
+    check_loops: int   # how many times the answer has been regenerated after a failed check
     
 @traceable(name="agentic_retrieve")
 def retrieve(state: State) -> dict:
@@ -79,7 +85,46 @@ def answer(state: State) -> dict:
         "I cannot find that in these documents.\n\n"
         f"Context:\n{context}\n\nQuestion: {state['original_question']}"
     )
+    if state["feedback"]:
+        prompt += (
+            "\n\nA previous draft of this answer was rejected by a checker for this reason: "
+            f"{state['feedback']}\n"
+            "Write a new answer. State only facts that appear in the context above. "
+            "If a fact is not in the context, leave it out."
+        )
     return {"answer": llm.invoke(prompt).content}
+
+class SupportCheck(BaseModel):
+    supported: Literal["yes", "no"]
+    reason: str
+
+
+checker = llm.with_structured_output(SupportCheck)
+
+
+@traceable(name="agentic_self_check")
+def self_check(state: State) -> dict:
+    if REFUSAL in state["answer"]:
+        print("Self-check: skipped, answer is a refusal")
+        return {"feedback": ""}
+    context = "\n\n".join(
+        f"[Source: {c.metadata['source']}]\n{c.page_content}" for c in state["chunks"]
+    )
+    prompt = (
+        "You are checking an answer against the documents it was written from.\n"
+        f"Question: {state['original_question']}\n\n"
+        f"Context:\n{context}\n\n"
+        f"Draft answer:\n{state['answer']}\n\n"
+        "Go through the draft claim by claim. Answer yes only if every factual claim "
+        "in the draft appears in the context. If any claim does not appear in the "
+        "context, answer no and name that claim in the reason. "
+        "Naming the source document is not a factual claim."
+    )
+    result = checker.invoke(prompt)
+    print(f"Self-check: {result.supported} - {result.reason}")
+    if result.supported == "yes":
+        return {"feedback": ""}
+    return {"feedback": result.reason, "check_loops": state["check_loops"] + 1}
 
 
 def refuse(state: State) -> dict:
@@ -92,16 +137,21 @@ def decide_after_grade(state: State) -> str:
         return "rewrite"
     return "refuse"
 
-def decide_after_answer(state: State) -> str:
+def decide_after_check(state: State) -> str:
     if REFUSAL in state["answer"]:
         return "refuse"
-    return "end"
+    if not state["feedback"]:
+        return "end"
+    if state["check_loops"] <= 1:
+        return "regenerate"
+    return "refuse"
 
 graph = StateGraph(State)
 graph.add_node("retrieve", retrieve)
 graph.add_node("grade", grade)
 graph.add_node("rewrite", rewrite)
 graph.add_node("answer", answer)
+graph.add_node("self_check", self_check)
 graph.add_node("refuse", refuse)
 
 graph.add_edge(START, "retrieve")
@@ -112,9 +162,11 @@ graph.add_conditional_edges("grade", decide_after_grade, {
     "refuse": "refuse",
 })
 graph.add_edge("rewrite", "retrieve")
-graph.add_conditional_edges("answer", decide_after_answer, {
-    "refuse": "refuse",
+graph.add_edge("answer", "self_check")
+graph.add_conditional_edges("self_check", decide_after_check, {
     "end": END,
+    "regenerate": "answer",
+    "refuse": "refuse",
 })
 graph.add_edge("refuse", END)
 app_graph = graph.compile()
@@ -128,6 +180,8 @@ if __name__ == "__main__":
         "chunks": [],
         "answer": "",
         "loops": 0,
+        "feedback": "",
+        "check_loops": 0,
     })
     print("\nANSWER:\n", result["answer"])
     if result["chunks"]:
