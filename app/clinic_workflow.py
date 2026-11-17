@@ -19,10 +19,10 @@ class WorkflowState(TypedDict):
     result: str        # the final output text, whichever agent produced it
     
 class Route(BaseModel):
+    reason: str = Field(description="one short sentence saying why")
     route: Literal["classify", "answer"] = Field(
         description="classify if the input is a document to file, answer if it is a question about the documents"
     )
-    reason: str = Field(description="one short sentence saying why")
     
 llm = ChatOllama(model="qwen3:8b", temperature=0)
 router = llm.with_structured_output(Route)
@@ -31,15 +31,22 @@ router = llm.with_structured_output(Route)
 def extract(state: WorkflowState) -> dict:
     return {"input_text": state["input_text"]}  # just pass it through, but trace it
 
+
 @traceable(name="route_input")
 def route(state: WorkflowState) -> dict:
     prompt = (
-    "You are routing input for a clinic document system. "
-    "Decide whether the input is a document to be filed, or a question about the documents.\n\n"
-    f"Input:\n{state['input_text']}"
+        "You are routing input for a clinic document system. "
+        "Ask one question first: is the writer handing over a record, or asking for information back? "
+        "If they are handing over a record, a letter, referral, report or discharge summary written about a patient, route classify, even when it contains requests like 'please arrange'. "
+        "If they expect an answer back, route answer. "
+        "Examples: 'Pathology result: HbA1c 7.8%. Comment: above target range, GP review recommended.' -> classify. "
+        "'Appointment confirmation: your appointment with Dr Lee is booked for Tuesday 10:30am. Please arrive 10 minutes early.' -> classify. "
+        "'What follow-up was arranged for Mr Chen after his procedure?' -> answer. "
+        "'What medication was prescribed at the last visit?' -> answer. "
+        f"Input:\n{state['input_text']}"
     )
     decision = router.invoke(prompt)
-    return { "route": decision.route, "route_reason": decision.reason }
+    return {"route": decision.route, "route_reason": decision.reason}
 
 @traceable(name="run_classifier")
 def run_classifier(state: WorkflowState) -> dict:

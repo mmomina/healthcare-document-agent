@@ -1,6 +1,6 @@
-from agentic_rag import app_graph
+from clinic_workflow import workflow
 
-graph = app_graph.get_graph()
+graph = workflow.get_graph()
 
 print(graph.draw_mermaid())
 
