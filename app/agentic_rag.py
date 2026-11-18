@@ -15,7 +15,7 @@ load_dotenv()
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 store = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
 retriever = store.as_retriever(search_kwargs={"k": 4})
-llm = ChatOllama(model="qwen3:8b", temperature=0)
+llm = ChatOllama(model="qwen3:8b", temperature=0, num_ctx=8192)
 REFUSAL = "I cannot find that in these documents."
 
 class State(TypedDict):
@@ -26,14 +26,26 @@ class State(TypedDict):
     loops: int
     feedback: str      # why the checker rejected the draft, empty on the first pass
     check_loops: int   # how many times the answer has been regenerated after a failed check
-    
+    context: str  # recent conversation from the supervisor, empty when standalone
+
 @traceable(name="agentic_retrieve")
 def retrieve(state: State) -> dict:
-    chunks = retriever.invoke(state["question"])
-    print(f"\nRetrieve (loop {state['loops']}): searched '{state['question']}'")
+    searches = [state["question"]]
+    if state["context"]:
+        searches.append(f"{state['context']}\n{state['question']}")
+    chunks = []
+    seen = set()
+    for text in searches:
+        print(f"\nRetrieve (loop {state['loops']}): searched '{text}'")
+        for c in retriever.invoke(text):
+            key = (c.metadata["source"], c.page_content)
+            if key not in seen:
+                seen.add(key)
+                chunks.append(c)
     for c in chunks:
         print("  found:", c.metadata["source"])
     return {"chunks": chunks}
+
 
 class Grade(BaseModel):
     binary_score: Literal["yes", "no"]
@@ -45,14 +57,13 @@ grader = llm.with_structured_output(Grade)
 @traceable(name="agentic_grade")
 def grade(state: State) -> dict:
     kept = []
-    print("Grades:")
     for c in state["chunks"]:
         prompt = (
-            "You are grading whether a document chunk is relevant to a question.\n"
-            f"Question: {state['original_question']}\n\n"
-            f"Chunk:\n{c.page_content}\n\n"
-            "Answer yes if the chunk contains information that helps answer the question, "
-            "no if it does not."
+        "You are grading whether a document chunk is relevant to a question.\n"
+        f"Question: {state['original_question']}\n\n"
+        f"Chunk:\n{c.page_content}\n\n"
+        "Answer yes if the chunk contains information that helps answer the question, "
+        "no if it does not."
         )
         result = grader.invoke(prompt)
         print(f"  {c.metadata['source']}: {result.binary_score}")
@@ -175,16 +186,18 @@ app_graph = graph.compile()
 if __name__ == "__main__":
     q = " ".join(sys.argv[1:]) or "Why does Priya Nair need urgent review?"
     result = app_graph.invoke({
-        "question": q,
-        "original_question": q,
-        "chunks": [],
-        "answer": "",
-        "loops": 0,
-        "feedback": "",
-        "check_loops": 0,
-    })
+    "question": q,
+    "original_question": q,
+    "context": "",
+    "chunks": [],
+    "answer": "",
+    "loops": 0,
+    "feedback": "",
+    "check_loops": 0,
+})
+
     print("\nANSWER:\n", result["answer"])
     if result["chunks"]:
         print("\nSources used:")
         for c in result["chunks"]:
-            print(" -", c.metadata["source"])
+            print(" -", c.metadata["source"]) 
