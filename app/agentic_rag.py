@@ -15,7 +15,7 @@ load_dotenv()
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 store = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
 retriever = store.as_retriever(search_kwargs={"k": 4})
-llm = ChatOllama(model="qwen3:8b", temperature=0, num_ctx=8192)
+llm = ChatOllama(model="qwen3:8b", temperature=0, num_ctx=8192,  client_kwargs={'timeout': 120})
 REFUSAL = "I cannot find that in these documents."
 
 class State(TypedDict):

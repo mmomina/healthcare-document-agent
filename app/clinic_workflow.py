@@ -24,7 +24,7 @@ class Route(BaseModel):
     route: Literal["classify", "answer"] = Field(
         description="classify if the input is a document to file, answer if it is a question about the documents"
     )
-llm = ChatOllama(model="qwen3:8b", temperature=0, num_ctx=8192)
+llm = ChatOllama(model="qwen3:8b", temperature=0, num_ctx=8192, client_kwargs={"timeout": 120})
 router = llm.with_structured_output(Route)
 
 @traceable(name="extract_input")
@@ -49,20 +49,33 @@ def route(state: WorkflowState) -> dict:
         f"Conversation so far (use it only to understand references like her, him, or that referral; judge the new input itself):\n{history_text}\n\n"
         f"Input:\n{state['input_text']}"
     )
-    decision = router.invoke(prompt)
-    return {"route": decision.route, "route_reason": decision.reason}
+    
+    try:
+        decision = router.invoke(prompt)
+    except Exception as e:
+        return {
+            "route": "error",
+            "route_reason": f"Router failed twice: {type(e).__name__}",
+            "result": "I could not route that input because the model call failed. Nothing was filed or answered.",
+            "messages": [AIMessage(content="I could not route that input because the model call failed. Nothing was filed or answered.")],
+        }
+    return {"route": decision.route, "route_reason": decision.reason}        
 
 @traceable(name="run_classifier")
 def run_classifier(state: WorkflowState) -> dict:
-    out = classifier_graph.invoke({"document_text": state["input_text"]})
-    return {"result": out["classification"],
-            "messages": [AIMessage(content=str(out["classification"]))]}
+    try: 
+        out = classifier_graph.invoke({"document_text": state["input_text"]})
+        text = str(out["classification"])
+    except Exception as e:
+        text = f"The classifier failed ({type(e).__name__}). Nothing was classified."
+    return {"result": text, "messages": [AIMessage(content=text)]}
 
 @traceable(name="run_qa")
 def run_qa(state: WorkflowState) -> dict:
     history = state["messages"][:-1][-6:]
-    context = "\n".join(f"{m.type}: {m.content}" for m in history)
-    out = qa_graph.invoke({
+    context = "\n".join(f"{m.type}: {m.content}" for m in history)   
+    try:
+        out= qa_graph.invoke({
         "question": state["input_text"],
         "original_question": state["input_text"],
         "chunks": [],
@@ -72,8 +85,10 @@ def run_qa(state: WorkflowState) -> dict:
         "check_loops": 0,
         "context": context,
     })
-    return {"result": out["answer"],
-            "messages": [AIMessage(content=out["answer"])]}
+        text = out["answer"]
+    except Exception as e:
+        text = f"The Q&A agent failed ({type(e).__name__}). Nothing was answered."
+    return {"result": text, "messages": [AIMessage(content=text)]}
 
 
 builder = StateGraph(WorkflowState)
@@ -84,7 +99,7 @@ builder.add_node("answer", run_qa)
 
 builder.add_edge(START, "extract")
 builder.add_edge("extract", "route")
-builder.add_conditional_edges("route", lambda state: state["route"], {"classify": "classify", "answer": "answer"})
+builder.add_conditional_edges("route", lambda state: state["route"], {"classify": "classify", "answer": "answer", "error": END})
 builder.add_edge("classify", END)
 builder.add_edge("answer", END)
 workflow = builder.compile(checkpointer=InMemorySaver())
@@ -94,7 +109,10 @@ if __name__ == "__main__":
     print("Clinic workflow. Type a document or a question. Type exit to stop.")
     while True:
         text = input(">> ")
-        if text.strip().lower() == "exit":
+        if not text.strip():
+            print("Empty input: nothing to file or answer.\n")
+            continue
+        if text.strip().lower() == "exit" or text.strip().lower() == "quit":
             break
         final = workflow.invoke({"input_text": text}, config=config)
         print("RESULT:", final["result"])
