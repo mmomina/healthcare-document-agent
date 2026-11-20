@@ -20,7 +20,7 @@ An AI agent for clinic document handling, built as an 8-week project. The proble
 - [x] Week 1: document classifier with structured output, 12-document baseline
 - [x] Week 2: RAG core, chunking, FAISS index, Q&A with citations, 10-question test
 - [x] Week 3: agentic RAG, retrieval grading, query rewrite, retry loop, refusal path, self-check
-- [ ] Week 4: full clinic workflow
+- [x] Week 4: full clinic workflow, supervisor routing, conversation memory, error handling
 - [ ] Week 5: human in the loop, safety
 - [ ] Week 6: production shape
 - [ ] Week 7: evaluation
@@ -209,3 +209,60 @@ graph TD;
 - The standing retrieval limit is unchanged since Week 2: the Sofia Rossi follow-up detail sits in a doc05 chunk that retrieval still does not fetch in the top 4.
 
 **Week 3 complete: grading before answering, refusal at the boundary, verification after.**
+
+## Week 4: Full clinic workflow
+
+One supervisor graph (`app/clinic_workflow.py`) sits in front of the earlier agents. It takes whatever arrives, a document or a question, routes it, and returns one result. The classifier and the Q&A agent run underneath it as subgraphs.
+
+### Session 1: supervisor and routing
+
+An extract node truncates input at 500 characters. A route node decides classify or answer using one discriminating test: is the writer handing over a record, or expecting an answer back? Two adapter nodes translate between the supervisor's state and each subgraph's own state.
+
+| Test set | Result |
+|---|---|
+| Original tests: Lucas question, Sofia question, referral, discharge | All routed correctly (Lucas 3 of 3, Sofia 2 of 2, documents 1 of 1 each) |
+| Held-out set, 6 unseen inputs (3 questions, 3 documents) | 6 of 6 |
+
+Key finding: the router prompt's first examples were the test items themselves, which would have measured memorisation, not routing. They were replaced with same-shape, different-content examples before the counts above were taken.
+
+### Session 2: short-term memory
+
+Conversation memory uses LangGraph's built-ins: `MessagesState` plus an `InMemorySaver` checkpointer on one thread. No node rewrites the user's input. The router reads the last 6 messages to interpret references. The Q&A agent takes conversation context in retrieval only, as a union of the bare-question search and a context-plus-question search; grading keeps the Week 3 prompt unchanged.
+
+| Test set | Result |
+|---|---|
+| Scripted conversations (controls, follow-ups, hand-ins) | 5 of 6, the one miss a safe refusal |
+| Standalone control, no conversation | Pass, identical to Week 3 behaviour |
+| Invented conversation, 4 turns | 2 of 4 |
+
+Key finding: with several same-type documents graded relevant, the answer node can pick the wrong one. Named as a failure class for Week 7: grader precision and answer selection across same-type documents. The repeated multi-minute stalls were also traced here: a 40960 context window spilled the model off the GPU; `num_ctx=8192` fixed it (100% GPU, 6.3 GB).
+
+### Session 3: error handling
+
+Every model call has a 120-second timeout. Empty input is rejected at the loop before any model call. A failed router call ends the turn on an error route with a readable result. Adapter nodes catch subgraph failures and return them as results. Nothing fails as a traceback, and the conversation loop survives every failure.
+
+| Test | Result |
+|---|---|
+| T1 Empty input | Pass, guard message, no model call |
+| T2 Gibberish input | Pass, exact refusal after the rewrite loop |
+| T3 Ollama stopped, then restarted, same process | Pass, failure result while down, correct answer after recovery |
+| T4 Timeout set to 1 second | Pass, the timeout fired and the turn ended in words |
+| T5 Oversized input, a discharge text repeated to thousands of characters | Pass, classified normally, no crash |
+| T6 Regression control, Lucas and Priya questions | Pass, both match the Week 3 outcomes |
+
+Key findings: `ollama list` restarts the server it is checking, so a stopped Ollama was verified by its port instead. The router's retry-once was removed: at temperature 0 an identical retry is weak, and one try with an honest error result is the cleaner design.
+
+### Week 4 gate: all 6 document types end to end
+
+| Input | Type | Urgency | Result |
+|---|---|---|---|
+| doc03, Priya Nair referral | referral | urgent | Pass |
+| doc05, Sofia Rossi discharge summary | discharge_summary | soon | Pass |
+| Held-out pathology text, FBC and ferritin | pathology_result | routine | Pass |
+| Held-out appointment letter, Mrs Ahmed | appointment_request | routine | Pass |
+| doc08, Lucas Davis Medicare letter | admin_letter | routine | Pass |
+| doc12, Ruby Clark email with a hidden instruction | routed to answer, not classified | n/a | Boundary case, see below |
+
+Doc12 is an email whose writer asks a question, so under the router's own test it expects an answer back and routes to answer. The hidden instruction still got nothing: no false classification, nothing forwarded. The Q&A agent's reply was hollow, only a source line, and the self-check passed it because an answer making no claims cannot fail a claim-by-claim check; that vacuous pass is logged for Week 7. The router prompt was deliberately not patched for this single case: a rule fitted to one input is overfitting. Doc12's proper handling is Week 5's injection work.
+
+**Week 4 complete: routing, memory and failure handling around the two agents, gate 5 of 6 with doc12 carried to Week 5 as a recorded boundary case.**
